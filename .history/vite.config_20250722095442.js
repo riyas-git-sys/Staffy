@@ -12,13 +12,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          auth: [
-            './src/pages/auth/LoginPage.jsx',
-            './src/pages/auth/SignupPage.jsx'
-          ],
-          employees: [
-            './src/pages/employees/*.jsx'
-          ]
+          react: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          icons: ['@heroicons/react'],
         }
       }
     }

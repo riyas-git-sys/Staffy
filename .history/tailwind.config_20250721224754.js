@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./public/index.html",
+    "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}", // Checks all JS/JSX files in src
   ],
   theme: {
@@ -15,5 +15,7 @@ module.exports = {
     },
   },
   plugins: [],
-  safelist: [],
+  safelist: [
+    { pattern: /.*/ } // TEMPORARY - REMOVE AFTER VERIFICATION
+  ],
 }

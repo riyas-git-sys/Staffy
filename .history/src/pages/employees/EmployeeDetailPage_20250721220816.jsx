@@ -107,37 +107,21 @@ export default function EmployeeDetailPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       {/* Company Header Card */}
-      <div className="w-xl max-w-xl flex flex-col items-center justify-between mx-auto mb-6 p-6 rounded-xl shadow-md bg-gradient-to-r from-red-700 to-purple-700 transform transition-transform duration-300 hover:scale-[1.03] relative group">
-        {/* Active Status Indicator (Bottom Left - Appears on Hover) */}
-        <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-400 mb-3 ml-3">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            employee.status === 'Active' 
-              ? 'bg-green-100 text-green-800' 
-              : employee.status === 'On Leave' 
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'bg-red-100 text-red-800'
-          }`}>
-            {employee.status}
-            {employee.status === 'Active' && (
-              <span className="ml-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            )}
-          </span>
-        </div>
-
+      <div className="w-xl max-w-xl flex flex-col items-center justify-between mx-auto mb-6 p-6 rounded-xl shadow-md bg-gradient-to-r from-red-700 to-purple-700 transform transition-transform duration-300 hover:scale-[1.03]">
         {/* Top Section */}
         <div className="w-full flex justify-between items-center mb-2">
           <h1 className="text-3xl font-bold text-white">STAFFY</h1>
           <img 
             src="https://i.ibb.co/C3r84TzZ/emplogo.png" 
             alt="Staffy-logo" 
-            className="h-9 w-auto"
+            className="h-8 w-auto"  // Changed to w-auto for proper aspect ratio
           />
         </div>
         
         {/* Middle Section */}
-        <div className="w-full flex items-center mb-2 p-4 backdrop-blur-sm rounded-xl">
+        <div className="w-full flex items-center mb-6 p-4 backdrop-blur-sm rounded-xl">
           {/* Employee Image */}
-          <div className="w-40 h-40 border-2 border-violet-500 hover:border-violet-600 d rounded-xl overflow-hidden mr-6">
+          <div className="w-40 h-40 border-4 border-white rounded-xl overflow-hidden mr-6">
             {employee.profileImage ? (
               <img 
                 src={employee.profileImage} 
@@ -153,18 +137,18 @@ export default function EmployeeDetailPage() {
           
           {/* Employee Details */}
           <div className="text-white">
-            <h2 className="text-3xl font-mono mb-3">
+            <h2 className="text-2xl font-bold">
               {employee.firstName} {employee.lastName}
             </h2>
-            <p className="text-lg font-mono opacity-90 mb-2">Employee ID:</p>
-            <p className="text-lg font-mono opacity-90 mb-1 ml-3">   {employee.id}</p>
-            <p className="text-lg font-semibold mb-1">{employee.role}</p>
-            <p className="text-lg font-mono opacity-90 mb-1">{employee.department}</p>
+            <p className="text-sm opacity-90">Employee ID:</p>
+            <p className="text-sm opacity-90">   {employee.id}</p>
+            <p className="text-lg font-semibold">{employee.role}</p>
+            <p className="text-sm opacity-90">{employee.department}</p>
           </div>
         </div>
         
         {/* Bottom Section - Social Links */}
-        <div className="w-full flex justify-end space-x-8 pt-2">
+        <div className="w-full flex justify-end space-x-8 pt-4">
           {employee.links?.linkedIn && (
             <a 
               href={employee.links.linkedIn} 

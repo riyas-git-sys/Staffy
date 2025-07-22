@@ -137,7 +137,7 @@ export default function EmployeeDetailPage() {
         {/* Middle Section */}
         <div className="w-full flex items-center mb-2 p-4 backdrop-blur-sm rounded-xl">
           {/* Employee Image */}
-          <div className="w-40 h-40 border-2 border-violet-500 hover:border-violet-600 d rounded-xl overflow-hidden mr-6">
+          <div className="w-40 h-40 border-2 border-violet-500 hover:border-violet-600 rounded-full d rounded-xl overflow-hidden mr-6">
             {employee.profileImage ? (
               <img 
                 src={employee.profileImage} 

@@ -15,5 +15,7 @@ module.exports = {
     },
   },
   plugins: [],
-  safelist: [],
+  safelist: [
+    { pattern: /.*/ } // TEMPORARY - REMOVE AFTER VERIFICATION
+  ],
 }

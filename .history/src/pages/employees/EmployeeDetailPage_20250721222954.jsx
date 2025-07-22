@@ -109,7 +109,7 @@ export default function EmployeeDetailPage() {
       {/* Company Header Card */}
       <div className="w-xl max-w-xl flex flex-col items-center justify-between mx-auto mb-6 p-6 rounded-xl shadow-md bg-gradient-to-r from-red-700 to-purple-700 transform transition-transform duration-300 hover:scale-[1.03] relative group">
         {/* Active Status Indicator (Bottom Left - Appears on Hover) */}
-        <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-400 mb-3 ml-3">
+        <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
             employee.status === 'Active' 
               ? 'bg-green-100 text-green-800' 
@@ -123,7 +123,7 @@ export default function EmployeeDetailPage() {
             )}
           </span>
         </div>
-
+        
         {/* Top Section */}
         <div className="w-full flex justify-between items-center mb-2">
           <h1 className="text-3xl font-bold text-white">STAFFY</h1>
@@ -137,7 +137,7 @@ export default function EmployeeDetailPage() {
         {/* Middle Section */}
         <div className="w-full flex items-center mb-2 p-4 backdrop-blur-sm rounded-xl">
           {/* Employee Image */}
-          <div className="w-40 h-40 border-2 border-violet-500 hover:border-violet-600 d rounded-xl overflow-hidden mr-6">
+          <div className="w-40 h-40 border-4 border-white rounded-xl overflow-hidden mr-6">
             {employee.profileImage ? (
               <img 
                 src={employee.profileImage} 

@@ -13,7 +13,7 @@ export default function EmployeeCard({ employee, onDelete }) {
 
   return (
     <div 
-      className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow hover:[scale:1.02] hover:transition-transform hover:duration-500 cursor-pointer"
+      className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow hover:[scale:1.03] hover:z-10 hover:transition-transform duration-500 cursor-pointer"
       onClick={handleCardClick}
     >
       <div className="flex items-center justify-between space-x-4">

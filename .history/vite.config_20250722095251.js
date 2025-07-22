@@ -11,14 +11,12 @@ export default defineConfig({
     cssCodeSplit: true, 
     rollupOptions: {
       output: {
-        manualChunks: {
-          auth: [
-            './src/pages/auth/LoginPage.jsx',
-            './src/pages/auth/SignupPage.jsx'
-          ],
-          employees: [
-            './src/pages/employees/*.jsx'
-          ]
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'vendor-react';
+            if (id.includes('lodash')) return 'vendor-lodash';
+            return 'vendor';
+          }
         }
       }
     }

@@ -137,19 +137,30 @@ export default function EmployeeDetailPage() {
         {/* Middle Section */}
         <div className="w-full flex items-center mb-2 p-4 backdrop-blur-sm rounded-xl">
           {/* Employee Image */}
-          <div className="w-40 h-40 border-2 border-violet-500 hover:border-violet-600 d rounded-xl overflow-hidden mr-6">
-            {employee.profileImage ? (
-              <img 
-                src={employee.profileImage} 
-                alt={`${employee.firstName} ${employee.lastName}`} 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
-                Upload Your Photo
-              </div>
-            )}
-          </div>
+          <div className="w-40 h-40 rounded-xl overflow-hidden mr-6 relative">
+  {/* RGB Border Effect */}
+  <div className="absolute inset-0 rounded-xl p-0.5 bg-gradient-to-br from-red-400 via-green-400 to-blue-500">
+    {/* Image Container */}
+    <div className="relative w-full h-full bg-white rounded-lg overflow-hidden">
+      {employee.profileImage ? (
+        <img 
+          src={employee.profileImage} 
+          alt={`${employee.firstName} ${employee.lastName}`} 
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center text-gray-500">
+          <span className="text-sm text-center px-2">Upload Your Photo</span>
+        </div>
+      )}
+    </div>
+  </div>
+  
+  {/* Optional Animated RGB Glow on Hover */}
+  <div className="absolute inset-0 rounded-xl opacity-0 hover:opacity-100 transition-opacity duration-500">
+    <div className="absolute -inset-1 bg-gradient-to-br from-red-400 via-green-400 to-blue-500 rounded-xl blur-md animate-pulse"></div>
+  </div>
+</div>
           
           {/* Employee Details */}
           <div className="text-white">

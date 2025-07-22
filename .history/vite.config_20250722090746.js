@@ -7,18 +7,12 @@ export default defineConfig({
     postcss: './postcss.config.cjs' // Explicitly use .cjs extension
   },
   build: {
-    chunkSizeWarningLimit: 1000,
-    cssCodeSplit: true, 
     rollupOptions: {
       output: {
-        manualChunks: {
-          auth: [
-            './src/pages/auth/LoginPage.jsx',
-            './src/pages/auth/SignupPage.jsx'
-          ],
-          employees: [
-            './src/pages/employees/*.jsx'
-          ]
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         }
       }
     }
