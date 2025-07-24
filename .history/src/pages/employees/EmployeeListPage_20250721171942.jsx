@@ -1,0 +1,111 @@
+// src/pages/employees/EmployeeListPage.jsx
+import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { getEmployees, deleteEmployee } from '../../services/employeeService';
+import EmployeeCard from '../../components/employees/EmployeeCard';
+
+export default function EmployeeListPage() {
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getEmployees();
+        setEmployees(data);
+      } catch (error) {
+        console.error("Failed to fetch employees:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleDeleteClick = (employee) => {
+    setEmployeeToDelete(employee);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteEmployee(employeeToDelete.id);
+      setEmployees(employees.filter(emp => emp.id !== employeeToDelete.id));
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error("Failed to delete employee:", error);
+    }
+  };
+
+  const filteredEmployees = employees.filter(emp => 
+    `${emp.firstName} ${emp.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) return <div className="p-4">Loading...</div>;
+
+  return (
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <input
+          type="text"
+          placeholder="Search employees..."
+          className="border p-2 rounded flex-1 max-w-md"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Link
+          to="/employees/add"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded ml-4"
+        >
+          Add Employee
+        </Link>
+      </div>
+
+      {filteredEmployees.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          No employees found
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredEmployees.map(employee => (
+            <EmployeeCard 
+              key={employee.id} 
+              employee={employee}
+              onDelete={() => handleDeleteClick(employee)}
+            />
+          ))}
+        </div>
+      )}
+      
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
+            <p className="mb-6">
+              Are you sure you want to delete {employeeToDelete?.firstName} {employeeToDelete?.lastName}?
+              This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
