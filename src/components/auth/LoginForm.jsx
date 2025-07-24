@@ -25,7 +25,6 @@ export default function LoginForm() {
     setLoading(true);
     
     try {
-      // Directly attempt to sign in
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/');
     } catch (err) {
@@ -46,7 +45,6 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      // Check if email exists before sending reset link
       const methods = await fetchSignInMethodsForEmail(auth, email);
       if (methods.length === 0) {
         throw { code: 'auth/user-not-found' };
@@ -80,18 +78,21 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Error Messages */}
       {error && (
-        <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+        <div className="p-3 sm:p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-200">
           {error}
         </div>
       )}
 
+      {/* Success Messages */}
       {successMessage && (
-        <div className="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">
+        <div className="p-3 sm:p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-200">
           {successMessage}
         </div>
       )}
 
+      {/* Email Input */}
       <Input
         label="Email Address"
         type="email"
@@ -99,11 +100,13 @@ export default function LoginForm() {
         onChange={(e) => setEmail(e.target.value)}
         required
         autoComplete="email"
-        placeholder="employee@gmail.com"
+        placeholder="employee@company.com"
+        className="w-full"
       />
 
       {!showForgotPassword && (
         <>
+          {/* Password Input */}
           <Input
             label="Password"
             type="password"
@@ -112,9 +115,11 @@ export default function LoginForm() {
             required
             autoComplete="current-password"
             placeholder="••••••••"
+            className="w-full"
           />
 
-          <div className="flex items-center justify-between">
+          {/* Remember Me & Forgot Password */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div className="flex items-center">
               <input
                 id="remember-me"
@@ -122,7 +127,7 @@ export default function LoginForm() {
                 type="checkbox"
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                 Remember me
               </label>
             </div>
@@ -131,17 +136,18 @@ export default function LoginForm() {
               <button 
                 type="button"
                 onClick={() => setShowForgotPassword(true)}
-                className="font-medium text-blue-600 hover:text-blue-500"
+                className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200"
               >
                 Forgot password?
               </button>
             </div>
           </div>
 
+          {/* Submit Button */}
           <Button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center border border-transparent shadow-sm text-sm text-white font-semibold py-2 px-4 rounded bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-transform duration-200 hover:scale-[1.02]"
+            className="w-full flex justify-center items-center border border-transparent shadow-sm text-sm sm:text-base text-white font-semibold py-3 px-4 rounded-md bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {loading ? (
               <>
@@ -156,18 +162,19 @@ export default function LoginForm() {
         </>
       )}
 
+      {/* Forgot Password Section */}
       {showForgotPassword && (
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 text-center">
             Enter your email address and we'll send you a link to reset your password.
           </p>
           
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
             <Button
               type="button"
               onClick={handleForgotPassword}
               disabled={loading}
-              className="flex-1 justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-transform duration-400 hover:scale-[1.02]"
+              className="flex-1 justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? 'Sending...' : 'Send Reset Link'}
             </Button>
@@ -176,7 +183,7 @@ export default function LoginForm() {
               type="button"
               onClick={() => setShowForgotPassword(false)}
               disabled={loading}
-              className="flex-1 justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-transform duration-400 hover:scale-[1.02]"
+              className="flex-1 justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </Button>
