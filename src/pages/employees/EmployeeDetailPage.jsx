@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { db } from '../../config/firebase';
 import Loader from '../../components/ui/Loader';
+import { auth } from '../../config/firebase';
+import { IoPerson } from 'react-icons/io5';
 
 export default function EmployeeDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [user] = useAuthState(auth);
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showLinkForm, setShowLinkForm] = useState(false);
@@ -21,11 +25,15 @@ export default function EmployeeDetailPage() {
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
+        console.log('Fetching employee with ID:', id); // Debug log
         const docRef = doc(db, 'employees', id);
         const docSnap = await getDoc(docRef);
+
+        console.log('Document exists:', docSnap.exists()); // Debug log
         
         if (docSnap.exists()) {
           const data = docSnap.data();
+          console.log('Employee data:', data); // Debug log
           setEmployee({
             id: docSnap.id,
             ...data,
@@ -41,6 +49,7 @@ export default function EmployeeDetailPage() {
             website: ''
           });
         } else {
+          console.log('Document does not exist'); // Debug log
           navigate('/employees');
         }
       } catch (error) {
@@ -92,7 +101,9 @@ export default function EmployeeDetailPage() {
       await deleteDoc(doc(db, 'employees', id));
       navigate('/employees');
     } catch (error) {
-      console.error('Error deleting employee:', error);
+      if (error.code === 'permission-denied') {
+        alert('You do not have permission to delete this employee');
+      }
     }
   };
 
@@ -153,9 +164,13 @@ export default function EmployeeDetailPage() {
           <div className="relative z-10 p-8">
             {/* Header */}
             <div className="flex justify-between items-center mb-3">
-              <h1 className="text-3xl font-bold text-gray-200 text-transparent bg-clip-text tracking-wider animate-fade-in">
-                Staffy
-              </h1>
+              <div className="ml-2">
+                <img
+                  src="https://i.ibb.co/8D1k2WQY/staffylogo-removebg-preview.png"
+                  alt="Staffy-logo"
+                  className="h-14 w-auto"
+                />
+              </div>
               {/* Logo */}    
               <div className="transform transition-transform duration-300 hover:scale-110 hover:rotate-6">
                 <img 
@@ -264,17 +279,19 @@ export default function EmployeeDetailPage() {
                 </h2>
                 <p className="text-blue-100 text-lg">{employee.role}</p>
               </div>
-              <button 
-                onClick={() => navigate(`/employees/edit/${employee.id}`)}
-                className="group px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 hover:-translate-y-1 hover:bg-blue-50"
-              >
-                <span className="flex items-center space-x-2">
-                  <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                  </svg>
-                  <span>Edit Profile</span>
-                </span>
-              </button>
+              {(user?.uid === employee.createdBy?.uid || user?.token?.isAdmin) && (
+                <button 
+                  onClick={() => navigate(`/employees/edit/${employee.id}`)}
+                  className="group px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 hover:-translate-y-1 hover:bg-blue-50"
+                >
+                  <span className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    <span>Edit Profile</span>
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -533,16 +550,19 @@ export default function EmployeeDetailPage() {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex flex-wrap gap-4">
-                    <button 
-                      onClick={() => setShowLinkForm(true)}
-                      className="group flex items-center space-x-1 px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
-                    >
-                      <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                      </svg>
-                      <span>Add Links</span>
-                    </button>
+                  <div className="flex justify-end flex-wrap gap-4">
+                    {/* Only show Add Links button to creator or admin */}
+                    {(user?.uid === employee.createdBy?.uid || user?.token?.isAdmin) && (
+                      <button 
+                        onClick={() => setShowLinkForm(true)}
+                        className="group flex items-center space-x-1 px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
+                      >
+                        <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <span>Add Links</span>
+                      </button>
+                    )}
                     
                     <button 
                       onClick={() => navigate('/employees')}
@@ -561,6 +581,21 @@ export default function EmployeeDetailPage() {
 
           {/* Footer */}
           <div className="bg-gradient-to-r from-gray-100 to-gray-200 px-8 py-6 border-t border-gray-200">
+            {/*Creator Name Data*/}
+            {employee.createdBy && (
+              <div className="bg-white p-6 px-4 mb-4 rounded-xl border border-gray-100 hover:shadow-md transition-all duration-300 hover:scale-105">
+                <p className="text-sm text-gray-500 mb-1">Added By</p>
+                <div className="flex items-center">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                    <IoPerson className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">{employee.createdBy.name}</p>
+                    <p className="text-xs text-gray-500">{employee.createdBy.email}</p>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-purple-600 rounded-lg flex items-center justify-center">
@@ -583,16 +618,18 @@ export default function EmployeeDetailPage() {
       <div className={`max-w-3xl mx-auto mt-8 flex justify-end transform transition-all duration-1000 delay-400 ${
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
       }`}>
-        <button 
-          onClick={() => setShowDeleteModal(true)}
-          className="group flex items-center space-x-2 px-2 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-104 hover:-translate-y-1 border-2 border-red-500 hover:border-red-400"
-        >
-          <svg className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-          </svg>
-          <span>Delete Employee</span>
-          <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
-        </button>
+        {(user?.uid === employee.createdBy?.uid || user?.token?.isAdmin) && (
+          <button 
+            onClick={() => setShowDeleteModal(true)}
+            className="group flex items-center space-x-2 px-2 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-104 hover:-translate-y-1 border-2 border-red-500 hover:border-red-400"
+          >
+            <svg className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            <span>Delete Employee</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+          </button>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}

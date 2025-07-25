@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getEmployees } from '../../services/employeeService';
 import { Link } from 'react-router-dom';
-import Loader from '../../components/ui/Loader';
 import { 
   IoAlertCircle, 
   IoPeople, 
@@ -68,6 +67,23 @@ export default function DashboardPage() {
         </div>
       ) : (
         <>
+          {/* Staffy Logo */}
+          <div className="flex flex-row justify-center items-center bg-gradient-to-r from-white via-blue-50 to-white rounded-2xl shadow-xl p-8 border border-blue-100/50 transform hover:scale-105 transition-all duration-300 hover:shadow-2xl">
+            
+            <div className="absolute top-4 right-4 flex space-x-1">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce animation-delay-200"></div>
+              <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce animation-delay-400"></div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <img
+                src="https://i.ibb.co/4wYbwyXM/staffylogo.png"
+                alt="Staffy-logo"
+                className="h-45 w-auto"
+              />
+            </div>
+          </div>
+
           {/* Enhanced Dashboard Welcome Section */}
           <div className="bg-gradient-to-r from-white via-blue-50 to-white rounded-2xl shadow-xl p-8 border border-blue-100/50 transform hover:scale-105 transition-all duration-300 hover:shadow-2xl">
             <div className="flex items-center space-x-4">
@@ -78,7 +94,7 @@ export default function DashboardPage() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                   Dashboard
                 </h1>
-                <p className="text-gray-600 mt-1">Welcome to your employee management system!</p>
+                <p className="text-gray-600 mt-1">Welcome to your Employee Dashboard!</p>
               </div>
             </div>
             <div className="absolute top-4 right-4 flex space-x-1">

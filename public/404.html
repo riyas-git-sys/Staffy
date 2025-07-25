@@ -1,1 +1,14 @@
-echo "<html><body><h1>404 Not Found</h1></body></html>" > public/404.html
+echo '<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <script>
+      sessionStorage.redirect = location.pathname;
+      window.location.href = "/";
+    </script>
+  </head>
+  <body>
+    Redirecting to home...
+  </body>
+</html>' > public/404.html

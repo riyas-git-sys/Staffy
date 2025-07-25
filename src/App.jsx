@@ -13,6 +13,8 @@ const EmployeeDetailPage = lazy(() => import('./pages/employees/EmployeeDetailPa
 const EmployeeForm = lazy(() => import('./components/employees/EmployeeForm'));
 const EditEmployeePage = lazy(() => import('./pages/employees/EditEmployeePage'));
 const ErrorPage = lazy(() => import('./pages/ErrorPage'));
+const Announcements = lazy(() => import('./pages/announcements/Announcements'));
+const Projects = lazy(() => import('./pages/projects/Projects'));
 
 export default function App() {
   const { currentUser, loading } = useAuth();
@@ -24,7 +26,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<LoadingSpinner fullScreen />}>
-        <Routes>
+        <Routes basename="/">
           {/* Public routes */}
           <Route 
             path="/login" 
@@ -41,10 +43,12 @@ export default function App() {
             element={currentUser ? <DashboardLayout /> : <Navigate to="/login" replace />}
           >
             <Route index element={<DashboardPage />} />
-            <Route path="employees" element={<EmployeeListPage />} />
+            <Route path="/employees" element={<EmployeeListPage />} />
             <Route path="employees/:id" element={<EmployeeDetailPage />} />
             <Route path="employees/add" element={<EmployeeForm />} />
             <Route path="employees/edit/:id" element={<EditEmployeePage />} />
+            <Route path="announcements" element={<Announcements />} />
+            <Route path="projects" element={<Projects />} />
           </Route>
           
           {/* Error handling */}

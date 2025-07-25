@@ -15,14 +15,31 @@ import {
 // Reference to the employees collection
 const employeesRef = collection(db, 'employees');
 
-// Add a new employee
-export const addEmployee = async (employeeData) => {
+// Add a new employee with creator info
+export const addEmployee = async (employeeData, currentUser) => {
   try {
-    const docRef = await addDoc(collection(db, 'employees'), {
+    if (!currentUser?.uid) {
+      throw new Error('User authentication information is incomplete');
+    }
+
+    const docRef = await addDoc(employeesRef, {
       ...employeeData,
+      fullName: `${employeeData.firstName} ${employeeData.lastName}`,
       createdAt: new Date(),
       updatedAt: new Date(),
-      status: 'Active'
+      status: 'Active',
+      createdBy: {
+        uid: currentUser.uid,
+        name: currentUser.displayName || `${employeeData.firstName} ${employeeData.lastName}`,
+        email: currentUser.email || 'unknown@email.com',
+        timestamp: new Date()
+      },
+      lastModifiedBy: {
+        uid: currentUser.uid,
+        name: currentUser.displayName || `${employeeData.firstName} ${employeeData.lastName}`,
+        email: currentUser.email || 'unknown@email.com',
+        timestamp: new Date()
+      }
     });
     return docRef.id;
   } catch (error) {
@@ -49,17 +66,12 @@ export const getEmployees = async (filters = {}) => {
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({
       id: doc.id,
-      firstName: doc.data().firstName,
-      lastName: doc.data().lastName,
-      fullName: doc.data().fullName,
-      email: doc.data().email,
-      phone: doc.data().phone,
-      role: doc.data().role,
-      department: doc.data().department,
-      profileImage: doc.data().profileImage || '',
+      ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
       updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-      status: doc.data().status || 'Active'
+      // Include createdBy data if it exists
+      createdBy: doc.data().createdBy || null,
+      lastModifiedBy: doc.data().lastModifiedBy || null
     }));
   } catch (error) {
     console.error("Error getting employees: ", error);
@@ -77,17 +89,12 @@ export const getEmployeeById = async (id) => {
       const data = docSnap.data();
       return {
         id: docSnap.id,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        fullName: data.fullName,
-        email: data.email,
-        phone: data.phone,
-        role: data.role,
-        department: data.department,
-        profileImage: data.profileImage || '',
+        ...data,
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate() || new Date(),
-        status: data.status || 'Active'
+        // Include createdBy data if it exists
+        createdBy: data.createdBy || null,
+        lastModifiedBy: data.lastModifiedBy || null
       };
     } else {
       throw new Error("Employee not found");
@@ -98,15 +105,21 @@ export const getEmployeeById = async (id) => {
   }
 };
 
-
-// Update an employee
-export const updateEmployee = async (id, updates) => {
+// Update an employee with modifier info
+export const updateEmployee = async (id, updates, currentUser) => {
   try {
     const docRef = doc(db, 'employees', id);
+    
     await updateDoc(docRef, {
       ...updates,
       fullName: `${updates.firstName} ${updates.lastName}`,
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      lastModifiedBy: {
+        uid: currentUser.uid,
+        name: currentUser.displayName || 'Admin',
+        email: currentUser.email,
+        timestamp: new Date()
+      }
     });
     
     // Return the updated employee data
@@ -117,7 +130,7 @@ export const updateEmployee = async (id, updates) => {
   }
 };
 
-// Delete an employee
+// Delete an employee (permission check should be done before calling this)
 export const deleteEmployee = async (id) => {
   try {
     const docRef = doc(db, 'employees', id);
@@ -125,5 +138,25 @@ export const deleteEmployee = async (id) => {
   } catch (error) {
     console.error("Error deleting employee: ", error);
     throw new Error("Failed to delete employee");
+  }
+};
+
+// Check if current user can modify an employee
+export const canModifyEmployee = async (employeeId, currentUser) => {
+  try {
+    if (!currentUser) return false;
+    
+    // Admins can modify any employee
+    if (currentUser.token?.isAdmin) return true;
+    
+    const employee = await getEmployeeById(employeeId);
+    
+    // Creator can modify their own employees
+    if (employee.createdBy?.uid === currentUser.uid) return true;
+    
+    return false;
+  } catch (error) {
+    console.error("Error checking permissions: ", error);
+    return false;
   }
 };

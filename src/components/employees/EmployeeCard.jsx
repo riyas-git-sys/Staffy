@@ -10,9 +10,12 @@ import {
   IoTrashOutline,
   IoSparkles
 } from 'react-icons/io5';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../config/firebase';
 
 export default function EmployeeCard({ employee, onDelete }) {
   const navigate = useNavigate();
+  const [user] = useAuthState(auth);
 
   const handleCardClick = () => {
     navigate(`/employees/${employee.id}`);
@@ -110,31 +113,40 @@ export default function EmployeeCard({ employee, onDelete }) {
         </div>
       </div>
 
+      {/*name of creator*/}
+      {employee.createdBy && (
+        <div className="text-xs text-gray-500 mt-2 flex items-center">
+          <span>Added by: {employee.createdBy.name}</span>
+        </div>
+      )}
+
       {/* Enhanced Actions */}
-      <div className="flex justify-end space-x-3 mt-4" onClick={handleActionClick}>
-        <Link
-          to={`/employees/edit/${employee.id}`}
-          className="group/edit flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
-        >
-          <div className="p-1 bg-white/20 rounded-lg group-hover/edit:bg-white/30 transition-all duration-300 group-hover/edit:rotate-12">
-            <IoCreateOutline size={14} />
-          </div>
-          <span>Edit</span>
-        </Link>
-        
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="group/delete flex items-center space-x-2 px-4 py-2 bg-white border-2 border-red-400 text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:border-red-500 text-sm font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-red-300 focus:ring-offset-2"
-        >
-          <div className="p-1 bg-red-50 rounded-lg group-hover/delete:bg-red-100 transition-all duration-300 group-hover/delete:rotate-12">
-            <IoTrashOutline size={14} className="group-hover/delete:animate-pulse" />
-          </div>
-          <span>Delete</span>
-        </button>
-      </div>
+      {(user?.uid === employee.createdBy?.uid || user?.token?.isAdmin) && (
+        <div className="flex justify-end space-x-3 mt-4" onClick={handleActionClick}>
+          <Link
+            to={`/employees/edit/${employee.id}`}
+            className="group/edit flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
+          >
+            <div className="p-1 bg-white/20 rounded-lg group-hover/edit:bg-white/30 transition-all duration-300 group-hover/edit:rotate-12">
+              <IoCreateOutline size={14} />
+            </div>
+            <span>Edit</span>
+          </Link>
+          
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="group/delete flex items-center space-x-2 px-4 py-2 bg-white border-2 border-red-400 text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:border-red-500 text-sm font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-red-300 focus:ring-offset-2"
+          >
+            <div className="p-1 bg-red-50 rounded-lg group-hover/delete:bg-red-100 transition-all duration-300 group-hover/delete:rotate-12">
+              <IoTrashOutline size={14} className="group-hover/delete:animate-pulse" />
+            </div>
+            <span>Delete</span>
+          </button>
+        </div>
+      )}
     </div>
   </div>
 

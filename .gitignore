@@ -28,3 +28,7 @@ dist-ssr
 .env.local
 *.env
 .vercel
+
+# VS Code History
+.history/
+.vercel

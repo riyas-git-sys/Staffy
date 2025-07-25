@@ -3,6 +3,8 @@ import LoginPage from './pages/auth/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import EmployeeListPage from './pages/employees/EmployeeListPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import Announcements from './pages/announcements/Announcements';
+import Projects from './pages/projects/Projects';
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +18,14 @@ export const router = createBrowserRouter([
       {
         path: 'employees',
         element: <EmployeeListPage />,
+      },
+      {
+        path: 'announcements',
+        element: <Announcements />,
+      },
+      {
+        path: 'projects',
+        element: <Projects />,
       },
     ],
   },

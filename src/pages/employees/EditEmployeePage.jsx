@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../config/firebase';
+import { useParams, useNavigate } from 'react-router-dom';
+import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { db, auth } from '../../config/firebase';
 
 export default function EditEmployeePage() {
   const { id } = useParams();
@@ -24,34 +25,69 @@ export default function EditEmployeePage() {
   const [fetching, setFetching] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [user] = useAuthState(auth);
 
   // Load employee data
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
+        console.log('Fetching employee with ID:', id);
         const docRef = doc(db, 'employees', id);
         const docSnap = await getDoc(docRef);
+
+        console.log('Document exists:', docSnap.exists());
         
         if (docSnap.exists()) {
           const data = docSnap.data();
-          const nameParts = data.fullName?.split(' ') || [];
+          console.log('Employee data:', data);
+          
+          // Check permissions
+          if (data.createdBy?.uid !== user?.uid && !user?.token?.isAdmin) {
+            console.log('Permission denied for user:', user?.uid);
+            navigate('/employees');
+            return;
+          }
+
+          // Handle hireDate conversion safely
+          let formattedHireDate = '';
+          if (data.hireDate) {
+            // If it's a Firestore Timestamp
+            if (typeof data.hireDate.toDate === 'function') {
+              formattedHireDate = data.hireDate.toDate().toISOString().split('T')[0];
+            } 
+            // If it's already a Date object
+            else if (data.hireDate instanceof Date) {
+              formattedHireDate = data.hireDate.toISOString().split('T')[0];
+            }
+            // If it's stored as a string
+            else if (typeof data.hireDate === 'string') {
+              formattedHireDate = data.hireDate.split('T')[0]; // Take just the date part
+            }
+          }
+
           setFormData({
-            firstName: nameParts[0] || '',
-            lastName: nameParts.slice(1).join(' ') || '',
+            firstName: data.firstName || '',
+            lastName: data.lastName || '',
             email: data.email || '',
             phone: data.phone || '',
             role: data.role || 'Software Engineer',
             department: data.department || 'Information Technology(IT)',
             profileImage: data.profileImage || '',
-            hireDate: data.hireDate || '',
+            hireDate: formattedHireDate,
             salary: data.salary || '',
             status: data.status || 'Active'
           });
         } else {
+          console.log('Document does not exist');
           navigate('/employees');
         }
       } catch (error) {
         console.error('Error fetching employee:', error);
+        console.error('Error details:', {
+          code: error.code,
+          message: error.message,
+          stack: error.stack
+        });
         setErrors({ submit: 'Failed to fetch employee data' });
       } finally {
         setFetching(false);
@@ -59,8 +95,12 @@ export default function EditEmployeePage() {
       }
     };
 
-    fetchEmployee();
-  }, [id, navigate]);
+    if (user) {
+      fetchEmployee();
+    } else {
+      navigate('/login');
+    }
+  }, [id, navigate, user]);
 
   const validateForm = () => {
     const newErrors = {};

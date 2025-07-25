@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addEmployee, updateEmployee } from '../../services/employeeService';
+import { serverTimestamp } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../config/firebase';
 
 export default function EmployeeForm({ employeeData, onSuccess }) {
   const navigate = useNavigate();
@@ -21,11 +24,27 @@ export default function EmployeeForm({ employeeData, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [user, loadingAuth, errorAuth] = useAuthState(auth); 
 
   // Show animation on mount
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 100);
   }, []);
+
+  // Handle authentication state
+  useEffect(() => {
+    if (loadingAuth) return; // Still loading
+    
+    if (errorAuth) {
+      console.error('Authentication error:', errorAuth);
+      navigate('/login');
+      return;
+    }
+    
+    if (!user) {
+      navigate('/login');
+    }
+  }, [loadingAuth, errorAuth, user, navigate]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -99,35 +118,49 @@ export default function EmployeeForm({ employeeData, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (!validateForm()) return;
+
+    // Ensure user is authenticated and has uid
+    if (!user?.uid) {
+      setErrors({ submit: 'Authentication required. Please login again.' });
+      navigate('/login');
       return;
     }
-    
     setLoading(true);
-    
+
     try {
       const payload = {
-        ...formData,
-        fullName: `${formData.firstName} ${formData.lastName}`,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone || null,
+        role: formData.role,
+        department: formData.department,
+        status: formData.status,
+        profileImage: formData.profileImage || null,
         salary: formData.salary ? parseFloat(formData.salary) : null,
-        createdAt: employeeData?.createdAt || new Date(),
-        updatedAt: new Date()
+        hireDate: formData.hireDate || null,
+        updatedAt: serverTimestamp(),
+        ...(employeeData?.id ? {} : {
+          createdAt: serverTimestamp(),
+          createdBy: {
+            uid: user.uid,
+            name: user.displayName || `${formData.firstName} ${formData.lastName}`,
+            email: user.email || 'unknown@email.com'
+          }
+        })
       };
 
       if (employeeData?.id) {
         await updateEmployee(employeeData.id, payload);
       } else {
-        await addEmployee(payload);
+        await addEmployee(payload, user);
       }
 
-      if (typeof onSuccess === 'function') {
-        onSuccess();
-      } else {
-        navigate('/employees');
-      }
+      onSuccess?.() || navigate('/employees');
     } catch (error) {
-      console.error("Failed to save employee:", error);
-      setErrors({ submit: `Failed to save employee: ${error.message}` });
+      console.error("Error:", error);
+      setErrors({ submit: error.message || 'Failed to save employee' });
     } finally {
       setLoading(false);
     }
@@ -140,6 +173,39 @@ export default function EmployeeForm({ employeeData, onSuccess }) {
       navigate('/employees');
     }
   };
+
+  // Loading and authentication states
+  if (loadingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4">Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </div>
+          <p className="text-lg font-medium mb-4">Authentication required</p>
+          <button 
+            onClick={() => navigate('/login')}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`transform transition-all duration-1000 ${

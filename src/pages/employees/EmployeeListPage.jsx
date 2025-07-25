@@ -5,6 +5,9 @@ import { getEmployees, deleteEmployee } from '../../services/employeeService';
 import EmployeeCard from '../../components/employees/EmployeeCard';
 import { FiFilter, FiChevronLeft, FiChevronRight, FiPlus, FiSearch, FiX } from 'react-icons/fi';
 import EmployeeFilters from './EmployeeFilters';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../config/firebase';
+
 
 export default function EmployeeListPage() {
   const [employees, setEmployees] = useState([]);
@@ -20,6 +23,7 @@ export default function EmployeeListPage() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [isVisible, setIsVisible] = useState(false);
+  const [user] = useAuthState(auth);
   const employeesPerPage = 12;
 
   useEffect(() => {
@@ -42,6 +46,10 @@ export default function EmployeeListPage() {
   const roles = [...new Set(employees.map(emp => emp?.role))].filter(Boolean);
 
   const handleDeleteClick = (employee) => {
+    if (employee.createdBy?.uid !== user?.uid && !user?.token?.isAdmin) {
+      alert('You can only delete employees you created');
+      return;
+    }
     setEmployeeToDelete(employee);
     setShowDeleteModal(true);
   };
@@ -226,6 +234,7 @@ export default function EmployeeListPage() {
                     <EmployeeCard 
                       employee={employee}
                       onDelete={() => handleDeleteClick(employee)}
+                      currentUser={user} // Add this prop
                     />
                   </div>
                 ))}
