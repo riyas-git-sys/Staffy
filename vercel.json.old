@@ -15,17 +15,17 @@
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
       "src": "/api/.*",
       "dest": "/api/$1"
     },
     {
-      "src": "/static/.*",
-      "headers": {
-        "Cache-Control": "public, max-age=31536000"
-      }
-    },
-    {
-      "src": "/.*",
+      "src": "/(.*)",
       "dest": "/index.html",
       "status": 200
     }

@@ -28,6 +28,7 @@ dist-ssr
 .env.local
 *.env
 .vercel
+.package-lock.json
 
 # VS Code History
 .history/

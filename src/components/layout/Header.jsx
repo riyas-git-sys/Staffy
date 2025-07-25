@@ -65,7 +65,7 @@ export default function Header({ onMenuClick, sidebarOpen }) {
 
         {/* https://i.ibb.co/4wYbwyXM/staffylogo.png */}
         {/* Centered logo */}
-        <div className="absolute left-1/2 transform -translate-x-1/2">
+        <div className="absolute left-1/2 transform -translate-x-1/2 hover:cursor-pointer" onClick={() => navigate('/')}>
           <img
             src="https://i.ibb.co/8D1k2WQY/staffylogo-removebg-preview.png"
             alt="Staffy-logo"

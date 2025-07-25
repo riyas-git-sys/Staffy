@@ -111,7 +111,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
     }`}>
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-        <div className="flex items-center gap-3 mb-1 mt-1">
+        <div className="flex items-center gap-3 mb-1 mt-1 hover:cursor-pointer" onClick={() => navigate('/')}>
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow">
             <IoPeople size={18} color="white" />
           </div>
