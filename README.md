@@ -20,7 +20,7 @@ A modern employee management dashboard with authentication, authorization, and C
 
 ## Live Demo
 
-[View Live Demo](https://employee-dashboard-app.vercel.app)
+[View Live Demo](https://staffy-blond.vercel.app/)
 
 ## Features
 
@@ -177,7 +177,7 @@ Distributed under the MIT License. See LICENSE for more information.
 ## Contact
 Name - @Riznexus - ecriyasahameda@gmail.com - +91 6380123825
 
-Project Link: https://github.com/yourusername/employee-dashboard-app
+Project Link: [Staffy Blond](https://staffy-blond.vercel.app/)
 
 ## Additional Notes
 
